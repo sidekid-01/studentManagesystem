@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header style="margin-bottom: 40px; animation: fadeInUp 0.8s ease;">
+    <h1 style="font-weight: 600; letter-spacing: -1px;">Student Directory</h1>
+    <p style="color: #86868b;">Manage and enroll students into the system.</p>
+</header>
+
+<section style="animation: fadeInUp 0.8s 0.1s backwards; background: #ffffff; padding: 25px; border-radius: 20px; border: 1px solid #f0f0f2; margin-bottom: 40px;">
+    <h3 style="margin-bottom: 20px; font-weight: 600;">Enroll New Student</h3>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label style="font-size: 12px; color: #86868b; margin-left: 5px;">Full Name</label>
+                {{ form.name(placeholder="e.g. John Doe", class="apple-input", style="width:100%; box-sizing:border-box;") }}
+            </div>
+            <div>
+                <label style="font-size: 12px; color: #86868b; margin-left: 5px;">Major</label>
+                {{ form.major(placeholder="e.g. Computer Science", class="apple-input", style="width:100%; box-sizing:border-box;") }}
+            </div>
+            <div>
+                <label style="font-size: 12px; color: #86868b; margin-left: 5px;">Student ID</label>
+                {{ form.studentnumber(placeholder="8-digit ID", class="apple-input", style="width:100%; box-sizing:border-box;") }}
+            </div>
+            <div>
+                <label style="font-size: 12px; color: #86868b; margin-left: 5px;">Current GPA</label>
+                {{ form.gpa(placeholder="0.0 - 4.0", class="apple-input", style="width:100%; box-sizing:border-box;") }}
+            </div>
+        </div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button type="submit" class="btn-apple" style="padding: 12px 40px;">Add Student</button>
+        </div>
+    </form>
+</section>
+
+<section style="animation: fadeInUp 0.8s 0.2s backwards;">
+    <h3 style="margin-bottom: 20px; font-weight: 600;">Registered Students</h3>
+    <div style="background: white; border-radius: 20px; overflow: hidden; border: 1px solid #f0f0f2;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: #f5f5f7; color: #86868b; font-size: 13px;">
+                    <th style="padding: 15px 20px;">NAME</th>
+                    <th style="padding: 15px 20px;">STUDENT ID</th>
+                    <th style="padding: 15px 20px;">MAJOR</th>
+                    <th style="padding: 15px 20px;">GPA</th>
+                    <th style="padding: 15px 20px;">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr style="border-bottom: 1px solid #f5f5f7; transition: background 0.3s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='white'">
+                    <td style="padding: 15px 20px; font-weight: 500;">{{ student.name }}</td>
+                    <td style="padding: 15px 20px; color: #86868b;">#{{ student.studentnumber }}</td>
+                    <td style="padding: 15px 20px;">{{ student.major }}</td>
+                    <td style="padding: 15px 20px;">
+                        <span style="background: #e1f2fe; color: #0071e3; padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: 600;">
+                            {{ student.gpa }}
+                        </span>
+                    </td>
+                    <td style="padding: 15px 20px;">
+                        <a href="#" style="color: var(--apple-blue); text-decoration: none; font-size: 14px;">View File</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="padding: 40px; text-align: center; color: #86868b;">No students enrolled yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

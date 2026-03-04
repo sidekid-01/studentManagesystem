@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header style="margin-bottom: 40px;">
+    <h1 style="font-weight: 600;">My Academic Schedule</h1>
+    <p style="color: #86868b;">查看你的作业截止日期，如有特殊情况可申请 EC 延期。if you need you can ask for ec support</p>
+</header>
+
+<section style="margin-bottom: 50px;">
+    <h3 style="margin-bottom: 20px;">Upcoming Tasks</h3>
+    <div style="display: grid; gap: 15px;">
+        {% for task in tasks %}
+        <div style="background: #f5f5f7; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="font-weight: 600; font-size: 16px;">{{ task.title }}</div>
+                <div style="color: #86868b; font-size: 13px;">Deadline: {{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</div>
+            </div>
+            <span style="font-size: 12px; background: white; padding: 5px 12px; border-radius: 10px; border: 1px solid #d2d2d7;">Assignment</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section style="background: #ffffff; padding: 30px; border-radius: 20px; border: 1px solid #f0f0f2;">
+    <h3 style="margin-bottom: 20px;">Apply for Special Consideration (EC)</h3>
+    <form action="" method="post" style="display: grid; gap: 15px;">
+        {{ form.hidden_tag() }}
+        <div>
+            <label style="display:block; margin-bottom:5px; font-size:13px; color:#86868b;">Select Task</label>
+            {{ form.task_id(class="apple-input", style="width:100%;") }}
+        </div>
+        <div>
+            <label style="display:block; margin-bottom:5px; font-size:13px; color:#86868b;">Reason for Extension</label>
+            {{ form.reason(class="apple-input", style="width:100%;", placeholder="请说明你需要延期的具体原因...") }}
+        </div>
+        <div>
+            <label style="display:block; margin-bottom:5px; font-size:13px; color:#86868b;">Evidence Link (OneDrive/Dropbox)</label>
+            {{ form.evidence_link(class="apple-input", style="width:100%;", placeholder="http://...") }}
+        </div>
+        <div style="margin-top: 10px;">
+            {{ form.submit(class="btn-apple") }}
+        </div>
+    </form>
+</section>
+
+<section style="margin-top: 50px;">
+    <h3 style="margin-bottom: 20px;">My EC Status</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr style="text-align: left; color: #86868b; font-size: 13px; border-bottom: 1px solid #eee;">
+            <th style="padding: 10px;">Task</th>
+            <th style="padding: 10px;">Status</th>
+            <th style="padding: 10px;">Result</th>
+        </tr>
+        {% for ec in my_ecs %}
+        <tr style="border-bottom: 1px solid #fafafa;">
+            <td style="padding: 10px;">{{ ec.task.title }}</td>
+            <td style="padding: 10px;">
+                <span style="color: {% if ec.status == 'pending' %}#ff9500{% elif 'approved' in ec.status %}#34c759{% else %}#ff3b30{% endif %}; font-weight: 600;">
+                    {{ ec.status }}
+                </span>
+            </td>
+            <td style="padding: 10px;">{{ ec.extension_days }} days approved</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+{% endblock %}

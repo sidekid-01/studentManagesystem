@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}修改,edit Deadline — {{ task.title }}{% endblock %}
+
+{% block content %}
+<header style="margin-bottom: 40px;">
+    <a href="{{ url_for('admin_tasks') }}"
+       style="font-size: 13px; color: #0071e3; text-decoration: none;">← 返回任务列表,back to the list</a>
+    <h1 style="font-weight: 600; margin-top: 10px;">✏️ 修改截止日期,edit the deadline</h1>
+    <p style="color: #86868b;">任务：<strong>{{ task.title }}</strong></p>
+</header>
+
+<div style="background: #ffffff; border-radius: 20px; border: 1px solid #f0f0f2;
+            padding: 35px; max-width: 500px;">
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 13px; font-weight: 500;
+                          color: #86868b; margin-bottom: 8px;">
+                {{ form.deadline.label.text }}
+            </label>
+            {{ form.deadline(class="apple-input", style="width: 100%; box-sizing: border-box;") }}
+            {% if form.deadline.errors %}
+                {% for e in form.deadline.errors %}
+                <p style="color: #ff3b30; font-size: 12px; margin-top: 5px;">{{ e }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div>
+            {{ form.submit(class="btn-apple") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

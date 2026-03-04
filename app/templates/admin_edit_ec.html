@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}修改 EC 申请 / Edit EC Application — {{ ec.student.name }}{% endblock %}
+
+{% block content %}
+<header style="margin-bottom: 40px;">
+    <a href="{{ url_for('wellbeing_manage') }}"
+       style="font-size: 13px; color: #0071e3; text-decoration: none;">← 返回申请列表 / Back to Application List</a>
+    <h1 style="font-weight: 600; margin-top: 10px;">✏️ 修改 EC 申请 / Edit EC Application</h1>
+    <p style="color: #86868b;">
+        学生 / Student：<strong>{{ ec.student.name }}</strong> &nbsp;|&nbsp;
+        任务 / Task：<strong>{{ ec.task.title }}</strong>
+    </p>
+</header>
+
+<div style="background: #ffffff; border-radius: 20px; border: 1px solid #f0f0f2;
+            padding: 35px; max-width: 500px;">
+
+    <div style="background: #f5f5f7; border-radius: 12px; padding: 15px 20px;
+                margin-bottom: 25px; font-size: 13px; color: #424245;">
+        <strong>申请理由 / Reason：</strong>{{ ec.reason }}
+        {% if ec.evidence_link %}
+        <br><strong>证明材料 / Evidence：</strong>
+        <a href="{{ ec.evidence_link }}" target="_blank" style="color: #0071e3;">查看链接 / View Link</a>
+        {% endif %}
+    </div>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 13px; font-weight: 500;
+                          color: #86868b; margin-bottom: 8px;">
+                {{ form.status.label.text }} / Approval Status
+            </label>
+            {{ form.status(class="apple-input", style="width: 100%; box-sizing: border-box;") }}
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; font-size: 13px; font-weight: 500;
+                          color: #86868b; margin-bottom: 8px;">
+                {{ form.extension_days.label.text }} / Extension Days
+            </label>
+            {{ form.extension_days(class="apple-input", style="width: 100%; box-sizing: border-box;") }}
+            {% if form.extension_days.errors %}
+                {% for e in form.extension_days.errors %}
+                <p style="color: #ff3b30; font-size: 12px; margin-top: 5px;">{{ e }}</p>
+                {% endfor %}
+            {% endif %}
+            <p style="font-size: 12px; color: #86868b; margin-top: 6px;">
+                填写 0 表示不延期，最多 365 天。/ Enter 0 for no extension, maximum 365 days.
+            </p>
+        </div>
+
+        <div>
+            {{ form.submit(class="btn-apple") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
