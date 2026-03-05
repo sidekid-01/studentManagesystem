@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +17,8 @@
             from { opacity: 0; transform: translateY(15px); filter: blur(5px); }
             to { opacity: 1; transform: translateY(0); filter: blur(0); }
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -37,7 +39,6 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 30px;
-            box-sizing: border-box;
             z-index: 1000;
         }
 
@@ -46,6 +47,36 @@
             text-decoration: none; color: #1d1d1f;
             letter-spacing: -0.5px;
         }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+            background: none;
+            border: none;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: #1d1d1f;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
         .sidebar {
             width: var(--sidebar-width);
@@ -56,7 +87,21 @@
             position: fixed;
             display: flex;
             flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 900;
         }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 850;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.visible { opacity: 1; }
 
         .menu-group { margin-bottom: 25px; padding: 0 15px; }
 
@@ -116,6 +161,7 @@
             font-size: 15px;
             transition: all 0.3s;
             outline: none;
+            width: 100%;
         }
 
         .apple-input:focus {
@@ -130,6 +176,7 @@
             border-radius: 20px;
             font-weight: 500; cursor: pointer;
             transition: opacity 0.2s;
+            white-space: nowrap;
         }
 
         .btn-apple:hover { opacity: 0.9; }
@@ -147,15 +194,62 @@
             border-top: 1px solid #f0f0f2;
             color: #86868b; font-size: 12px;
         }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            body { display: block; }
+
+            .hamburger { display: flex; }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+                padding-top: 20px;
+                top: 52px;
+                height: calc(100vh - 52px);
+                box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            }
+
+            .sidebar.open { transform: translateX(0); }
+
+            .sidebar-overlay { display: block; }
+
+            .main-container {
+                margin-left: 0;
+                padding-top: 70px;
+            }
+
+            .content-wrapper {
+                padding: 0 18px 40px 18px;
+            }
+
+            .nav-right .user-text { display: none; }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
     </style>
 </head>
 <body>
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <nav class="nav-header">
-    <a href="{{ url_for('index') }}" class="nav-logo"> EduManage</a>
-    <div style="display: flex; align-items: center; gap: 20px;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <a href="{{ url_for('index') }}" class="nav-logo">EduManage</a>
+    </div>
+
+    <div class="nav-right">
         {% if current_user.is_authenticated %}
-            <span style="font-size: 13px; color: #86868b;">Hi, {{ current_user.username }}</span>
+            <span class="user-text" style="font-size: 13px; color: #86868b;">Hi, {{ current_user.username }}</span>
             <a href="{{ url_for('logout') }}" style="font-size: 13px; color: #ff3b30; text-decoration: none;">Sign Out</a>
         {% else %}
             <a href="{{ url_for('login') }}" style="font-size: 13px; color: var(--apple-blue); text-decoration: none;">Login</a>
@@ -163,7 +257,7 @@
     </div>
 </nav>
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="menu-group">
         <div class="menu-label">General</div>
         <a href="{{ url_for('index') }}" class="sidebar-item">📅 Activities</a>
@@ -236,6 +330,38 @@
         </footer>
     </div>
 </main>
+
+<script>
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebar      = document.getElementById('sidebar');
+    const overlay      = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+        hamburgerBtn.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+        hamburgerBtn.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+        sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+
+    overlay.addEventListener('click', closeSidebar);
+
+    sidebar.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) closeSidebar();
+        });
+    });
+</script>
 
 </body>
 </html>
