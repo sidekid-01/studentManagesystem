@@ -13,6 +13,7 @@
                 <th style="padding: 15px 20px;">STUDENT / 学生</th>
                 <th style="padding: 15px 20px;">TASK / 任务</th>
                 <th style="padding: 15px 20px;">REASON / 申请理由</th>
+                <th style="padding: 15px 20px;">EVIDENCE / 证明材料</th>
                 <th style="padding: 15px 20px;">EXT. DAYS / 延期天数</th>
                 <th style="padding: 15px 20px;">STATUS / 状态</th>
                 <th style="padding: 15px 20px;">ACTIONS / 操作</th>
@@ -24,6 +25,37 @@
                 <td style="padding: 15px 20px; font-weight: 500;">{{ ec.student.name }}</td>
                 <td style="padding: 15px 20px;">{{ ec.task.title }}</td>
                 <td style="padding: 15px 20px; font-size: 13px; color: #424245;">{{ ec.reason }}</td>
+                <!-- 证明材料列 -->
+                <td style="padding: 15px 20px; font-size: 13px;">
+                    {% if ec.evidence_filename %}
+                        {% set ext = ec.evidence_filename.rsplit('.', 1)[1] %}
+                        {% if ext in ['jpg', 'jpeg', 'png'] %}
+                        <!-- 图片：点击在新标签查看，下载按钮单独 -->
+                        <a href="{{ url_for('view_evidence', ec_id=ec.id) }}" target="_blank"
+                           style="color: #0071e3; text-decoration: none; display: block; margin-bottom: 5px;">
+                            🖼 查看图片 / View Image
+                        </a>
+                        {% else %}
+                        <!-- PDF -->
+                        <a href="{{ url_for('view_evidence', ec_id=ec.id) }}" target="_blank"
+                           style="color: #0071e3; text-decoration: none; display: block; margin-bottom: 5px;">
+                            📄 查看 PDF / View PDF
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('download_evidence', ec_id=ec.id) }}"
+                           style="color: #86868b; text-decoration: none; font-size: 12px;">
+                            ⬇ 下载 / Download
+                        </a>
+                    {% elif ec.evidence_link %}
+                        <a href="{{ ec.evidence_link }}" target="_blank"
+                           style="color: #0071e3; text-decoration: none;">
+                            🔗 外部链接 / External Link
+                        </a>
+                    {% else %}
+                        <span style="color: #d2d2d7;">—</span>
+                    {% endif %}
+                </td>
+
                 <td style="padding: 15px 20px; text-align: center;">
                     {% if ec.extension_days > 0 %}
                     <span style="padding: 4px 8px; border-radius: 6px; font-size: 12px;
@@ -34,6 +66,7 @@
                     <span style="color: #d2d2d7; font-size: 13px;">—</span>
                     {% endif %}
                 </td>
+
                 <td style="padding: 15px 20px;">
                     <span style="padding: 4px 8px; border-radius: 6px; font-size: 12px;
                         {% if ec.status == 'pending' %} background: #fff7e6; color: #fa8c16;
@@ -42,6 +75,7 @@
                         {{ ec.status.upper() }}
                     </span>
                 </td>
+
                 <td style="padding: 15px 20px;">
                     {% if ec.status == 'pending' %}
                     <a href="{{ url_for('approve_ec', ec_id=ec.id, action='approve') }}"

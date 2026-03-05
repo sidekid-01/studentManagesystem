@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField, SelectField, FloatField, IntegerField
 from wtforms.validators import DataRequired, Email, NumberRange, Optional
 from wtforms import PasswordField, BooleanField
@@ -16,7 +17,7 @@ class StudentForm(FlaskForm):
 
 class TeacherForm(FlaskForm):
     name = StringField('老师姓名 / Teacher Name', validators=[DataRequired()])
-    major = StringField('所属学院/专业 / Faculty  Department', validators=[DataRequired()])
+    major = StringField('所属学院/专业 / Faculty / Department', validators=[DataRequired()])
     teacher_number = IntegerField('教工号 / Staff ID', validators=[DataRequired()])
     email = StringField('邮箱 / Email', validators=[DataRequired(), Email()])
     submit = SubmitField('添加老师信息 / Add Teacher')
@@ -39,10 +40,15 @@ class ECSubmissionForm(FlaskForm):
     task_id = SelectField('选择需要延期的任务 / Select Task', coerce=int, validators=[DataRequired()])
     reason = TextAreaField('申请理由 / Reason for Extension', validators=[DataRequired()], render_kw={"rows": 5})
     evidence_link = StringField('证明材料链接 (可选) / Evidence Link (Optional)')
+
+    evidence_file = FileField(
+        '上传证明文件 (可选) / Upload Evidence File (Optional)',
+        validators=[FileAllowed(['jpg', 'jpeg', 'png', 'pdf'], '只支持 JPG、PNG、PDF 格式 / Only JPG, PNG, PDF allowed')]
+    )
     submit = SubmitField('提交 EC 申请 / Submit EC Application')
 
 class ECEditForm(FlaskForm):
-    """Admin 修改 EC 申请的延期天数和状态 / Admin edit EC application status and extension days"""
+
     status = SelectField('审批状态 / Approval Status', choices=[
         ('pending', 'Pending'),
         ('approved', 'Approved'),
@@ -52,6 +58,6 @@ class ECEditForm(FlaskForm):
     submit = SubmitField('保存修改 / Save Changes')
 
 class DeadlineEditForm(FlaskForm):
-    """Admin 修改任务截止日期 / Admin edit task deadline"""
+
     deadline = DateTimeLocalField('新截止日期 / New Deadline', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     submit = SubmitField('更新 Deadline / Update Deadline')

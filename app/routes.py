@@ -1,10 +1,35 @@
-from flask import render_template, redirect, url_for, flash, request
+import os
+import uuid
+from flask import render_template, redirect, url_for, flash, request, send_from_directory, abort
 from sqlalchemy.exc import IntegrityError
+from werkzeug.utils import secure_filename
 from app import app, db
 from app.models import Student, Teacher, Course, GradeSheet, activities, Notification
 from app.forms import StudentForm, TeacherForm, CourseForm, activityForm, LoginForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User
+
+# 上传文件保存目录（项目根目录下的 uploads 文件夹）
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'pdf'}
+
+# 确保文件夹存在
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def save_uploaded_file(file_storage):
+    """保存上传文件，返回唯一文件名。失败返回 None。"""
+    if not file_storage or not file_storage.filename:
+        return None
+    if not allowed_file(file_storage.filename):
+        return None
+    ext = file_storage.filename.rsplit('.', 1)[1].lower()
+    unique_name = f"{uuid.uuid4().hex}.{ext}"
+    file_storage.save(os.path.join(UPLOAD_FOLDER, unique_name))
+    return unique_name
 
 
 def notify_teacher_of_task(task, ntype, message, ec=None):
@@ -14,7 +39,6 @@ def notify_teacher_of_task(task, ntype, message, ec=None):
     teacher = db.session.get(Teacher, course.teacher_id)
     if not teacher or not teacher.user_id:
         return
-
     notif = Notification(
         recipient_id=teacher.user_id,
         type=ntype,
@@ -25,6 +49,8 @@ def notify_teacher_of_task(task, ntype, message, ec=None):
     db.session.add(notif)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
@@ -34,7 +60,6 @@ def index():
         db.session.add(act)
         db.session.commit()
         return redirect(url_for('index'))
-
     acts = activities.query.all()
     return render_template('index.html', form=actform, acts=acts)
 
@@ -53,7 +78,6 @@ def studentpage():
         db.session.add(student)
         db.session.commit()
         return redirect(url_for('studentpage'))
-
     students = Student.query.all()
     return render_template('studentpage.html', form=sform, students=students)
 
@@ -100,11 +124,15 @@ def my_tasks():
     form.task_id.choices = [(t.id, t.title) for t in all_tasks]
 
     if form.validate_on_submit():
+        # 处理文件上传
+        filename = save_uploaded_file(form.evidence_file.data)
+
         new_ec = ECRequest(
             student_id=student.id,
             task_id=form.task_id.data,
             reason=form.reason.data,
-            evidence_link=form.evidence_link.data,
+            evidence_link=form.evidence_link.data or None,
+            evidence_filename=filename,
             status='pending'
         )
         db.session.add(new_ec)
@@ -116,13 +144,55 @@ def my_tasks():
     return render_template('my_tasks.html', tasks=all_tasks, form=form, my_ecs=my_ecs)
 
 
+# ── 查看证明文件（图片直接显示，PDF 下载）────────────────────────────────
+@app.route('/evidence/view/<int:ec_id>')
+@login_required
+def view_evidence(ec_id):
+    # 只有 admin、wellbeing 和文件归属学生本人可以查看
+    ec = db.session.get(ECRequest, ec_id)
+    if not ec:
+        abort(404)
+
+    is_owner = (current_user.role == 'student' and
+                ec.student.user_id == current_user.id)
+    is_staff = current_user.role in ('admin', 'wellbeing')
+
+    if not is_owner and not is_staff:
+        abort(403)
+
+    if not ec.evidence_filename:
+        abort(404)
+
+    return send_from_directory(UPLOAD_FOLDER, ec.evidence_filename)
+
+
+
+@app.route('/evidence/download/<int:ec_id>')
+@login_required
+def download_evidence(ec_id):
+    ec = db.session.get(ECRequest, ec_id)
+    if not ec:
+        abort(404)
+
+    is_staff = current_user.role in ('admin', 'wellbeing')
+    if not is_staff:
+        abort(403)
+
+    if not ec.evidence_filename:
+        abort(404)
+
+    ext = ec.evidence_filename.rsplit('.', 1)[1]
+    download_name = secure_filename(f"{ec.student.name}_{ec.task.title}.{ext}")
+    return send_from_directory(UPLOAD_FOLDER, ec.evidence_filename,
+                               as_attachment=True, download_name=download_name)
+
+
 @app.route('/wellbeing/manage')
 @login_required
 def wellbeing_manage():
     if current_user.role != 'wellbeing' and current_user.role != 'admin':
         flash("无权访问该页面 / You do not have permission to access this page")
         return redirect(url_for('index'))
-
     all_ecs = ECRequest.query.all()
     return render_template('wellbeing_manage.html', ecs=all_ecs)
 
@@ -140,29 +210,24 @@ def approve_ec(ec_id, action):
             ec.status = 'approved'
             flash(f"已通过 {ec.student.name} 的申请 / Application by {ec.student.name} has been approved")
             notify_teacher_of_task(
-                ec.task,
-                ntype='ec_approved',
+                ec.task, ntype='ec_approved',
                 message=(
                     f"学生 {ec.student.name} 对任务《{ec.task.title}》的 EC 申请已获批准，延期 {ec.extension_days} 天。"
                     f" / Student {ec.student.name}'s EC application for '{ec.task.title}' has been approved, "
                     f"with an extension of {ec.extension_days} day(s)."
-                ),
-                ec=ec
+                ), ec=ec
             )
         elif action == 'reject':
             ec.status = 'rejected'
             flash(f"已拒绝 {ec.student.name} 的申请 / Application by {ec.student.name} has been rejected")
             notify_teacher_of_task(
-                ec.task,
-                ntype='ec_rejected',
+                ec.task, ntype='ec_rejected',
                 message=(
                     f"学生 {ec.student.name} 对任务《{ec.task.title}》的 EC 申请已被拒绝。"
                     f" / Student {ec.student.name}'s EC application for '{ec.task.title}' has been rejected."
-                ),
-                ec=ec
+                ), ec=ec
             )
         db.session.commit()
-
     return redirect(url_for('wellbeing_manage'))
 
 
@@ -179,30 +244,24 @@ def admin_edit_ec(ec_id):
         return redirect(url_for('wellbeing_manage'))
 
     form = ECEditForm(obj=ec)
-
     if form.validate_on_submit():
         ec.status = form.status.data
         ec.extension_days = form.extension_days.data
-
         notify_teacher_of_task(
-            ec.task,
-            ntype='ec_updated',
+            ec.task, ntype='ec_updated',
             message=(
                 f"Admin 已更新学生 {ec.student.name} 对任务《{ec.task.title}》的 EC 申请："
                 f"状态变更为 {ec.status}，延期 {ec.extension_days} 天。"
                 f" / Admin has updated {ec.student.name}'s EC application for '{ec.task.title}':"
                 f" status changed to {ec.status}, extension of {ec.extension_days} day(s)."
-            ),
-            ec=ec
+            ), ec=ec
         )
-
         db.session.commit()
         flash(
             f"已更新 {ec.student.name} 的 EC 申请（延期 {ec.extension_days} 天，状态：{ec.status}）"
             f" / Updated {ec.student.name}'s EC application (extension: {ec.extension_days} day(s), status: {ec.status})"
         )
         return redirect(url_for('wellbeing_manage'))
-
     return render_template('admin_edit_ec.html', form=form, ec=ec)
 
 
@@ -212,7 +271,6 @@ def admin_tasks():
     if current_user.role != 'admin':
         flash("仅 Admin 可操作 / Admin access only")
         return redirect(url_for('index'))
-
     tasks = Task.query.order_by(Task.deadline).all()
     return render_template('admin_tasks.html', tasks=tasks)
 
@@ -230,21 +288,17 @@ def admin_edit_deadline(task_id):
         return redirect(url_for('admin_tasks'))
 
     form = DeadlineEditForm(obj=task)
-
     if form.validate_on_submit():
         old_deadline = task.deadline.strftime('%Y-%m-%d %H:%M')
         task.deadline = form.deadline.data
         new_deadline = task.deadline.strftime('%Y-%m-%d %H:%M')
-
         notify_teacher_of_task(
-            task,
-            ntype='deadline_changed',
+            task, ntype='deadline_changed',
             message=(
                 f"任务《{task.title}》的截止日期已由 {old_deadline} 更新为 {new_deadline}。"
                 f" / The deadline for '{task.title}' has been updated from {old_deadline} to {new_deadline}."
             )
         )
-
         db.session.commit()
         flash(
             f"已将《{task.title}》的截止日期更新为 {new_deadline}"
@@ -254,7 +308,6 @@ def admin_edit_deadline(task_id):
 
     if request.method == 'GET':
         form.deadline.data = task.deadline
-
     return render_template('admin_edit_deadline.html', form=form, task=task)
 
 
@@ -264,7 +317,6 @@ def teacher_notifications():
     if current_user.role != 'teacher':
         flash("仅 Teacher 可访问 / Teacher access only")
         return redirect(url_for('index'))
-
     notifications = (
         Notification.query
         .filter_by(recipient_id=current_user.id)
