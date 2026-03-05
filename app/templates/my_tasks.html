@@ -3,17 +3,17 @@
 {% block content %}
 <header style="margin-bottom: 40px;">
     <h1 style="font-weight: 600;">My Academic Schedule</h1>
-    <p style="color: #86868b;">查看你的作业截止日期，如有特殊情况可申请 EC 延期。/ View your assignment deadlines and apply for EC extension if needed.</p>
+    <p style="color: #86868b;"> View your assignment deadlines and apply for EC extension if needed.</p>
 </header>
 
 <section style="margin-bottom: 50px;">
-    <h3 style="margin-bottom: 20px;">Upcoming Tasks / 即将到来的任务</h3>
+    <h3 style="margin-bottom: 20px;">Upcoming Tasks </h3>
     <div style="display: grid; gap: 15px;">
         {% for task in tasks %}
         <div style="background: #f5f5f7; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <div style="font-weight: 600; font-size: 16px;">{{ task.title }}</div>
-                <div style="color: #86868b; font-size: 13px;">Deadline / 截止日期: {{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</div>
+                <div style="color: #86868b; font-size: 13px;">Deadline: {{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</div>
             </div>
             <span style="font-size: 12px; background: white; padding: 5px 12px; border-radius: 10px; border: 1px solid #d2d2d7;">Assignment</span>
         </div>
@@ -22,28 +22,28 @@
 </section>
 
 <section style="background: #ffffff; padding: 30px; border-radius: 20px; border: 1px solid #f0f0f2;">
-    <h3 style="margin-bottom: 20px;">Apply for Special Consideration (EC) / 申请 EC 延期</h3>
+    <h3 style="margin-bottom: 20px;">Apply for Special Consideration (EC) </h3>
     <form action="" method="post" enctype="multipart/form-data" style="display: grid; gap: 15px;">
         {{ form.hidden_tag() }}
 
         <div>
             <label style="display:block; margin-bottom:5px; font-size:13px; color:#86868b;">
-                Select Task / 选择任务
+                Select Task
             </label>
             {{ form.task_id(class="apple-input", style="width:100%;") }}
         </div>
 
         <div>
             <label style="display:block; margin-bottom:5px; font-size:13px; color:#86868b;">
-                Reason for Extension / 申请理由
+                Reason for Extension
             </label>
             {{ form.reason(class="apple-input", style="width:100%;", placeholder="请说明你需要延期的具体原因... / Please explain your reason for requesting an extension...") }}
         </div>
 
         <div>
             <label style="display:block; margin-bottom:5px; font-size:13px; color:#86868b;">
-                Upload Evidence File / 上传证明文件
-                <span style="font-weight: 400; color: #b0b0b5;">（JPG、PNG、PDF，可选 / Optional）</span>
+                Upload Evidence File
+                <span style="font-weight: 400; color: #b0b0b5;">（JPG、PNG、PDF / Optional）</span>
             </label>
             {{ form.evidence_file(class="apple-input", style="width:100%; padding: 8px 15px;") }}
             {% if form.evidence_file.errors %}
@@ -55,8 +55,8 @@
 
         <div>
             <label style="display:block; margin-bottom:5px; font-size:13px; color:#86868b;">
-                Evidence Link / 证明材料链接
-                <span style="font-weight: 400; color: #b0b0b5;">（OneDrive / Dropbox，可选 / Optional）</span>
+                Evidence Link
+                <span style="font-weight: 400; color: #b0b0b5;">（OneDrive / Dropbox， / Optional）</span>
             </label>
             {{ form.evidence_link(class="apple-input", style="width:100%;", placeholder="https://...") }}
         </div>
@@ -68,13 +68,13 @@
 </section>
 
 <section style="margin-top: 50px;">
-    <h3 style="margin-bottom: 20px;">My EC Status / 我的 EC 申请状态</h3>
+    <h3 style="margin-bottom: 20px;">My EC Status</h3>
     <table style="width: 100%; border-collapse: collapse;">
         <tr style="text-align: left; color: #86868b; font-size: 13px; border-bottom: 1px solid #eee;">
-            <th style="padding: 10px;">Task / 任务</th>
-            <th style="padding: 10px;">Status / 状态</th>
-            <th style="padding: 10px;">Evidence / 证明材料</th>
-            <th style="padding: 10px;">Result / 结果</th>
+            <th style="padding: 10px;">Task </th>
+            <th style="padding: 10px;">Status </th>
+            <th style="padding: 10px;">Evidence </th>
+            <th style="padding: 10px;">Result </th>
         </tr>
         {% for ec in my_ecs %}
         <tr style="border-bottom: 1px solid #fafafa;">
@@ -88,18 +88,18 @@
                 {% if ec.evidence_filename %}
                 <a href="{{ url_for('view_evidence', ec_id=ec.id) }}" target="_blank"
                    style="color: #0071e3; text-decoration: none;">
-                    📎 查看已上传文件 / View Uploaded File
+                    📎  View Uploaded File
                 </a>
                 {% elif ec.evidence_link %}
                 <a href="{{ ec.evidence_link }}" target="_blank"
                    style="color: #0071e3; text-decoration: none;">
-                    🔗 查看链接 / View Link
+                    🔗  View Link
                 </a>
                 {% else %}
                 <span style="color: #d2d2d7;">—</span>
                 {% endif %}
             </td>
-            <td style="padding: 10px;">{{ ec.extension_days }} days approved / 天延期</td>
+            <td style="padding: 10px;">{{ ec.extension_days }} days approved </td>
         </tr>
         {% endfor %}
     </table>

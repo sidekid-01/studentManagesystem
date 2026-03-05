@@ -3,20 +3,20 @@
 {% block content %}
 <header style="margin-bottom: 40px;">
     <h1 style="font-weight: 600;">EC Approval Center</h1>
-    <p style="color: #86868b;">审核学生提交的延期申请。/ Review student extension requests.</p>
+    <p style="color: #86868b;">Review student extension requests.</p>
 </header>
 
 <div style="background: #ffffff; border-radius: 20px; border: 1px solid #f0f0f2; overflow: hidden;">
     <table style="width: 100%; border-collapse: collapse; text-align: left;">
         <thead>
             <tr style="background: #f5f5f7; color: #86868b; font-size: 12px; border-bottom: 1px solid #eee;">
-                <th style="padding: 15px 20px;">STUDENT / 学生</th>
-                <th style="padding: 15px 20px;">TASK / 任务</th>
-                <th style="padding: 15px 20px;">REASON / 申请理由</th>
-                <th style="padding: 15px 20px;">EVIDENCE / 证明材料</th>
-                <th style="padding: 15px 20px;">EXT. DAYS / 延期天数</th>
-                <th style="padding: 15px 20px;">STATUS / 状态</th>
-                <th style="padding: 15px 20px;">ACTIONS / 操作</th>
+                <th style="padding: 15px 20px;">STUDENT</th>
+                <th style="padding: 15px 20px;">TASK </th>
+                <th style="padding: 15px 20px;">REASON </th>
+                <th style="padding: 15px 20px;">EVIDENCE </th>
+                <th style="padding: 15px 20px;">EXT. DAYS </th>
+                <th style="padding: 15px 20px;">STATUS </th>
+                <th style="padding: 15px 20px;">ACTIONS </th>
             </tr>
         </thead>
         <tbody>
@@ -25,31 +25,31 @@
                 <td style="padding: 15px 20px; font-weight: 500;">{{ ec.student.name }}</td>
                 <td style="padding: 15px 20px;">{{ ec.task.title }}</td>
                 <td style="padding: 15px 20px; font-size: 13px; color: #424245;">{{ ec.reason }}</td>
-                <!-- 证明材料列 -->
+
                 <td style="padding: 15px 20px; font-size: 13px;">
                     {% if ec.evidence_filename %}
                         {% set ext = ec.evidence_filename.rsplit('.', 1)[1] %}
                         {% if ext in ['jpg', 'jpeg', 'png'] %}
-                        <!-- 图片：点击在新标签查看，下载按钮单独 -->
+
                         <a href="{{ url_for('view_evidence', ec_id=ec.id) }}" target="_blank"
                            style="color: #0071e3; text-decoration: none; display: block; margin-bottom: 5px;">
-                            🖼 查看图片 / View Image
+                            🖼 View Image
                         </a>
                         {% else %}
                         <!-- PDF -->
                         <a href="{{ url_for('view_evidence', ec_id=ec.id) }}" target="_blank"
                            style="color: #0071e3; text-decoration: none; display: block; margin-bottom: 5px;">
-                            📄 查看 PDF / View PDF
+                            📄 View PDF
                         </a>
                         {% endif %}
                         <a href="{{ url_for('download_evidence', ec_id=ec.id) }}"
                            style="color: #86868b; text-decoration: none; font-size: 12px;">
-                            ⬇ 下载 / Download
+                            ⬇ Download
                         </a>
                     {% elif ec.evidence_link %}
                         <a href="{{ ec.evidence_link }}" target="_blank"
                            style="color: #0071e3; text-decoration: none;">
-                            🔗 外部链接 / External Link
+                            🔗 External Link
                         </a>
                     {% else %}
                         <span style="color: #d2d2d7;">—</span>
@@ -79,17 +79,17 @@
                 <td style="padding: 15px 20px;">
                     {% if ec.status == 'pending' %}
                     <a href="{{ url_for('approve_ec', ec_id=ec.id, action='approve') }}"
-                       style="color: #0071e3; text-decoration: none; margin-right: 10px; font-size: 14px;">Approve / 批准</a>
+                       style="color: #0071e3; text-decoration: none; margin-right: 10px; font-size: 14px;">Approve </a>
                     <a href="{{ url_for('approve_ec', ec_id=ec.id, action='reject') }}"
-                       style="color: #ff3b30; text-decoration: none; font-size: 14px;">Reject / 拒绝</a>
+                       style="color: #ff3b30; text-decoration: none; font-size: 14px;">Reject </a>
                     {% else %}
-                    <span style="color: #d2d2d7; font-size: 14px; margin-right: 10px;">Processed / 已处理</span>
+                    <span style="color: #d2d2d7; font-size: 14px; margin-right: 10px;">Processed </span>
                     {% endif %}
 
                     {% if current_user.role == 'admin' %}
                     <a href="{{ url_for('admin_edit_ec', ec_id=ec.id) }}"
                        style="color: #86868b; text-decoration: none; font-size: 13px; margin-left: 8px;">
-                        ✏️ Edit / 修改
+                        ✏️ Edit
                     </a>
                     {% endif %}
                 </td>
@@ -100,7 +100,7 @@
 
     {% if not ecs %}
     <div style="padding: 40px; text-align: center; color: #86868b; font-size: 14px;">
-        暂无待审核的 EC 申请。/ No EC applications found.
+        No EC applications found.
     </div>
     {% endif %}
 </div>

@@ -6,12 +6,12 @@
 <header style="margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between;">
     <div>
         <h1 style="font-weight: 600; margin-bottom: 6px;">🔔 Notifications</h1>
-        <p style="color: #86868b; margin: 0;">来自 Admin 的任务变更和 EC 审批通知。/ Task updates and EC approval notices from Admin.</p>
+        <p style="color: #86868b; margin: 0;"> Task updates and EC approval notices from Admin.</p>
     </div>
     {% if notifications %}
     <a href="{{ url_for('mark_all_notifications_read') }}"
        style="font-size: 13px; color: #0071e3; text-decoration: none; white-space: nowrap;">
-        ✓ 全部标为已读 / Mark All as Read
+        ✓ Mark All as Read
     </a>
     {% endif %}
 </header>
@@ -19,7 +19,7 @@
 {% if not notifications %}
 <div style="text-align: center; padding: 60px 0; color: #86868b;">
     <div style="font-size: 40px; margin-bottom: 15px;">📭</div>
-    <p>暂无通知。/ No notifications yet.</p>
+    <p> No notifications yet.</p>
 </div>
 {% else %}
 <div style="display: grid; gap: 12px;">
@@ -45,10 +45,10 @@
                     {% endif %}
                 </span>
                 <span style="font-size: 13px; font-weight: 600; color: #1d1d1f;">
-                    {% if notif.type == 'deadline_changed' %}Deadline 变更 / Deadline Changed
-                    {% elif notif.type == 'ec_approved' %}EC 已批准 / EC Approved
-                    {% elif notif.type == 'ec_rejected' %}EC 已拒绝 / EC Rejected
-                    {% else %}EC 申请更新 / EC Application Updated
+                    {% if notif.type == 'deadline_changed' %}Deadline Changed
+                    {% elif notif.type == 'ec_approved' %}EC Approved
+                    {% elif notif.type == 'ec_rejected' %}EC Rejected
+                    {% else %}EC Application Updated
                     {% endif %}
                 </span>
                 {% if not notif.is_read %}
@@ -68,7 +68,7 @@
         <a href="{{ url_for('mark_notification_read', notif_id=notif.id) }}"
            style="font-size: 12px; color: #86868b; text-decoration: none;
                   white-space: nowrap; padding-top: 2px; flex-shrink: 0;">
-            标为已读 / Mark as Read
+            Mark as Read
         </a>
         {% endif %}
     </div>

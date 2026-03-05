@@ -1,63 +1,58 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField, SelectField, FloatField, IntegerField
+from wtforms import PasswordField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Email, NumberRange, Optional
-from wtforms import PasswordField, BooleanField
-from wtforms import StringField, SubmitField, TextAreaField, SelectField
-from wtforms.validators import DataRequired
 from wtforms.fields import DateTimeLocalField
 
 
 class StudentForm(FlaskForm):
-    name = StringField('姓名 / Name', validators=[DataRequired()])
-    major = StringField('专业 / Major', validators=[DataRequired()])
-    studentnumber = IntegerField('学号 / Student ID', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired()])
+    major = StringField('Major', validators=[DataRequired()])
+    studentnumber = IntegerField('Student ID', validators=[DataRequired()])
     gpa = FloatField('GPA', validators=[DataRequired()])
-    submit = SubmitField('添加学生 / Add Student')
+    submit = SubmitField('Add Student')
 
 class TeacherForm(FlaskForm):
-    name = StringField('老师姓名 / Teacher Name', validators=[DataRequired()])
-    major = StringField('所属学院/专业 / Faculty / Department', validators=[DataRequired()])
-    teacher_number = IntegerField('教工号 / Staff ID', validators=[DataRequired()])
-    email = StringField('邮箱 / Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('添加老师信息 / Add Teacher')
+    name = StringField('Teacher Name', validators=[DataRequired()])
+    major = StringField('Faculty / Department', validators=[DataRequired()])
+    teacher_number = IntegerField('Staff ID', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Add Teacher')
 
 class CourseForm(FlaskForm):
-    classname = StringField('课程名称 / Course Name', validators=[DataRequired()])
-    teacher_id = IntegerField('授课教师ID / Teacher ID', validators=[DataRequired()])
-    submit = SubmitField('创建课程 / Create Course')
+    classname = StringField('Course Name', validators=[DataRequired()])
+    teacher_id = IntegerField('Teacher ID', validators=[DataRequired()])
+    submit = SubmitField('Create Course')
 
 class activityForm(FlaskForm):
-    activityname = StringField('活动名称 / Activity Name', validators=[DataRequired()])
+    activityname = StringField('Activity Name', validators=[DataRequired()])
 
 class LoginForm(FlaskForm):
-    username = StringField('用户名 / Username', validators=[DataRequired()])
-    password = PasswordField('密码 / Password', validators=[DataRequired()])
-    remember_me = BooleanField('记住我 / Remember Me')
-    submit = SubmitField('登录 / Login')
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Login')
 
 class ECSubmissionForm(FlaskForm):
-    task_id = SelectField('选择需要延期的任务 / Select Task', coerce=int, validators=[DataRequired()])
-    reason = TextAreaField('申请理由 / Reason for Extension', validators=[DataRequired()], render_kw={"rows": 5})
-    evidence_link = StringField('证明材料链接 (可选) / Evidence Link (Optional)')
-
+    task_id = SelectField('Select Task', coerce=int, validators=[DataRequired()])
+    reason = TextAreaField('Reason for Extension', validators=[DataRequired()], render_kw={"rows": 5})
+    evidence_link = StringField('Evidence Link (Optional)')
     evidence_file = FileField(
-        '上传证明文件 (可选) / Upload Evidence File (Optional)',
-        validators=[FileAllowed(['jpg', 'jpeg', 'png', 'pdf'], '只支持 JPG、PNG、PDF 格式 / Only JPG, PNG, PDF allowed')]
+        'Upload Evidence File (Optional)',
+        validators=[FileAllowed(['jpg', 'jpeg', 'png', 'pdf'], 'Only JPG, PNG, PDF allowed')]
     )
-    submit = SubmitField('提交 EC 申请 / Submit EC Application')
+    submit = SubmitField('Submit EC Application')
 
 class ECEditForm(FlaskForm):
-
-    status = SelectField('审批状态 / Approval Status', choices=[
+    status = SelectField('Approval Status', choices=[
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
     ], validators=[DataRequired()])
-    extension_days = IntegerField('延期天数 / Extension Days', validators=[DataRequired(), NumberRange(min=0, max=365)])
-    submit = SubmitField('保存修改 / Save Changes')
+    extension_days = IntegerField('Extension Days', validators=[DataRequired(), NumberRange(min=0, max=365)])
+    submit = SubmitField('Save Changes')
 
 class DeadlineEditForm(FlaskForm):
-
-    deadline = DateTimeLocalField('新截止日期 / New Deadline', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
-    submit = SubmitField('更新 Deadline / Update Deadline')
+    deadline = DateTimeLocalField('New Deadline', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
+    submit = SubmitField('Update Deadline')

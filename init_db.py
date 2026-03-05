@@ -8,12 +8,12 @@ from datetime import datetime, timedelta
 
 
 with app.app_context():
-    # ── 1. 清空并重建所有表 ──────────────────────────────────────────────
+    # ── 1.  ───────────────────────────
     db.drop_all()
     db.create_all()
     print("✅ 数据库表已重建")
 
-    # ── 2. 创建用户账号 ──────────────────────────────────────────────────
+    # ── 2. ──────────────
     admin = User(username='admin', role='admin')
     admin.set_password('admin123')
 
@@ -30,19 +30,19 @@ with app.app_context():
     db.session.flush()  # 让 id 生效，不用 commit
     print("✅ 用户账号已创建")
 
-    # ── 3. 创建 Teacher 记录，绑定 user_id ──────────────────────────────
+    # ── 3. 创建 ────────────────────────────────────────────
     teacher = Teacher(
         name='张伟',
         major='计算机学院',
         TeacherNumber=10001,
         Teacheremail='zhangwei@edu.com',
-        user_id=teacher_user.id      # 关键：绑定到 teacher1 账号
+        user_id=teacher_user.id
     )
     db.session.add(teacher)
     db.session.flush()
     print("✅ Teacher 记录已创建并关联账号")
 
-    # ── 4. 创建 Course，归属该 teacher ───────────────────────────────────
+    # ── 4. ───────────────────────────────────
     course = Course(
         classname='Python 程序设计',
         teacher_id=teacher.id
@@ -51,19 +51,19 @@ with app.app_context():
     db.session.flush()
     print("✅ Course 已创建")
 
-    # ── 5. 创建 Student 记录，绑定 user_id ──────────────────────────────
+    # ── 5. ────────────────────────────
     student = Student(
         name='李明',
         major='计算机科学',
         studentnumber=20240001,
         gpa=3.5,
-        user_id=student_user.id      # 关键：绑定到 student1 账号
+        user_id=student_user.id
     )
     db.session.add(student)
     db.session.flush()
     print("✅ Student 记录已创建并关联账号")
 
-    # ── 6. 创建 Task（截止日期分别为 7 天后和 14 天后）───────────────────
+    # ── 6. 创建 Task──────────────────
     task1 = Task(
         title='作业一：Python 基础练习',
         description='完成教材第三章所有练习题',
@@ -78,14 +78,14 @@ with app.app_context():
     )
     db.session.add_all([task1, task2])
 
-    # ── 7. 提交所有数据 ──────────────────────────────────────────────────
+    # ── 7.  ──────────────────────────────────────────────────
     db.session.commit()
     print("✅ Task 已创建")
 
     print("\n" + "="*50)
     print("🎉 初始化完成！以下是登录账号：")
     print("="*50)
-    print(f"  角色        用户名         密码")
+    print(f"  role        name        password")
     print(f"  admin     admin          admin123")
     print(f"  wellbeing wellbeing1     wellbeing123")
     print(f"  teacher   teacher1       teacher123")
