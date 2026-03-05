@@ -3,17 +3,11 @@ from app.models import User, Teacher, Student, Course, Task
 from datetime import datetime, timedelta
 
 
-
-#no need to read it is just a database creat tool
-
-
 with app.app_context():
-    # ── 1.  ───────────────────────────
     db.drop_all()
     db.create_all()
-    print("✅ 数据库表已重建")
+    print("✅ Database tables rebuilt")
 
-    # ── 2. ──────────────
     admin = User(username='admin', role='admin')
     admin.set_password('admin123')
 
@@ -27,71 +21,66 @@ with app.app_context():
     student_user.set_password('student123')
 
     db.session.add_all([admin, wellbeing, teacher_user, student_user])
-    db.session.flush()  # 让 id 生效，不用 commit
-    print("✅ 用户账号已创建")
+    db.session.flush()
+    print("✅ User accounts created")
 
-    # ── 3. 创建 ────────────────────────────────────────────
     teacher = Teacher(
-        name='张伟',
-        major='计算机学院',
+        name='John Smith',
+        major='School of Computing',
         TeacherNumber=10001,
-        Teacheremail='zhangwei@edu.com',
+        Teacheremail='johnsmith@edu.com',
         user_id=teacher_user.id
     )
     db.session.add(teacher)
     db.session.flush()
-    print("✅ Teacher 记录已创建并关联账号")
+    print("✅ Teacher record created and linked")
 
-    # ── 4. ───────────────────────────────────
     course = Course(
-        classname='Python 程序设计',
+        classname='Introduction to Python',
         teacher_id=teacher.id
     )
     db.session.add(course)
     db.session.flush()
-    print("✅ Course 已创建")
+    print("✅ Course created")
 
-    # ── 5. ────────────────────────────
     student = Student(
-        name='李明',
-        major='计算机科学',
+        name='Alice Lee',
+        major='Computer Science',
         studentnumber=20240001,
         gpa=3.5,
         user_id=student_user.id
     )
     db.session.add(student)
     db.session.flush()
-    print("✅ Student 记录已创建并关联账号")
+    print("✅ Student record created and linked")
 
-    # ── 6. 创建 Task──────────────────
     task1 = Task(
-        title='作业一：Python 基础练习',
-        description='完成教材第三章所有练习题',
+        title='Assignment 1: Python Basics',
+        description='Complete all exercises in Chapter 3 of the textbook',
         deadline=datetime.now() + timedelta(days=7),
         course_id=course.id
     )
     task2 = Task(
-        title='期中项目：数据分析报告',
-        description='使用 pandas 对给定数据集进行分析并撰写报告',
+        title='Midterm Project: Data Analysis Report',
+        description='Analyse the provided dataset using pandas and write a report',
         deadline=datetime.now() + timedelta(days=14),
         course_id=course.id
     )
     db.session.add_all([task1, task2])
 
-    # ── 7.  ──────────────────────────────────────────────────
     db.session.commit()
-    print("✅ Task 已创建")
+    print("✅ Tasks created")
 
-    print("\n" + "="*50)
-    print("🎉 初始化完成！以下是登录账号：")
-    print("="*50)
-    print(f"  role        name        password")
-    print(f"  admin     admin          admin123")
-    print(f"  wellbeing wellbeing1     wellbeing123")
-    print(f"  teacher   teacher1       teacher123")
-    print(f"  student   student1       student123")
-    print("="*50)
-    print("\n测试通知功能流程：")
-    print("  1. 用 admin 登录 → 修改 Task deadline 或审批 EC")
-    print("  2. 用 teacher1 登录 → 侧边栏出现红点 → 点击查看通知")
-    print("="*50)
+    print("\n" + "=" * 50)
+    print("🎉 Initialisation complete! Login credentials:")
+    print("=" * 50)
+    print(f"  Role        Username       Password")
+    print(f"  admin       admin          admin123")
+    print(f"  wellbeing   wellbeing1     wellbeing123")
+    print(f"  teacher     teacher1       teacher123")
+    print(f"  student     student1       student123")
+    print("=" * 50)
+    print("\nTo test the notification flow:")
+    print("  1. Log in as admin → edit a Task deadline or approve an EC")
+    print("  2. Log in as teacher1 → red badge appears in sidebar → click to view notifications")
+    print("=" * 50)
