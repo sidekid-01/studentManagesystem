@@ -54,6 +54,7 @@
             gap: 20px;
         }
 
+        /* Hamburger - hidden on desktop */
         .hamburger {
             display: none;
             flex-direction: column;
@@ -78,6 +79,7 @@
         .hamburger.open span:nth-child(2) { opacity: 0; }
         .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+        /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
             height: 100vh;
@@ -91,6 +93,7 @@
             z-index: 900;
         }
 
+        /* Overlay - only shown on mobile */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -99,9 +102,13 @@
             z-index: 850;
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
 
-        .sidebar-overlay.visible { opacity: 1; }
+        .sidebar-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
         .menu-group { margin-bottom: 25px; padding: 0 15px; }
 
@@ -158,10 +165,13 @@
             border: 1px solid #d2d2d7;
             border-radius: 12px;
             padding: 12px 15px;
-            font-size: 15px;
+            font-size: 16px;
             transition: all 0.3s;
             outline: none;
             width: 100%;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
         .apple-input:focus {
@@ -201,6 +211,7 @@
 
             .hamburger { display: flex; }
 
+            /* Sidebar hidden off-screen, NO pointer-events so it can't block clicks */
             .sidebar {
                 transform: translateX(-100%);
                 width: 260px;
@@ -211,11 +222,13 @@
                 pointer-events: none;
             }
 
+            /* Sidebar visible and interactive when open */
             .sidebar.open {
                 transform: translateX(0);
                 pointer-events: auto;
             }
 
+            /* Show overlay element on mobile */
             .sidebar-overlay { display: block; }
 
             .main-container {
